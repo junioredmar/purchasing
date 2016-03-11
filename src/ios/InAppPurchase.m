@@ -230,23 +230,27 @@ unsigned char* unbase64( const char* ascii, int len, int *flen )
 }
 */
 
-// To avoid compilation warning, declare JSONKit and SBJson's
-// category methods without including their header files.
-@interface NSArray (StubsForSerializers)
-- (NSString *)cdv_JSONString;
-- (NSString *)cdv_JSONRepresentation;
-
-@end
-
-// Helper category method to choose which JSON serializer to use.
-@interface NSArray (JSONSerialize)
-- (NSString *)JSONSerialize;
-@end
-
+//edmar - commented below
+//// To avoid compilation warning, declare JSONKit and SBJson's
+//// category methods without including their header files.
+//@interface NSArray (StubsForSerializers)
+//- (NSString *)cdv_JSONString;
+//- (NSString *)cdv_JSONRepresentation;
+//
+//@end
+//
+//// Helper category method to choose which JSON serializer to use.
+//@interface NSArray (JSONSerialize)
+//- (NSString *)JSONSerialize;
+//@end
+//edmar - changed this implementation
+//https://github.com/steffanolesen/cordova-plugin-purchase/commit/70a53a7ab780bb038a86533f83a5ae009caccea9
 @implementation NSArray (JSONSerialize)
 - (NSString *)JSONSerialize {
 //    return [self respondsToSelector:@selector(JSONString)] ? [self JSONString] : [self JSONRepresentation];
-    return [self respondsToSelector:@selector(cdv_JSONString)] ? [self cdv_JSONString] : [self cdv_JSONRepresentation];
+//    return [self respondsToSelector:@selector(cdv_JSONString)] ? [self cdv_JSONString] : [self cdv_JSONRepresentation];
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 @end
 
@@ -724,6 +728,7 @@ static NSString *rootAppleCA = @"MIIEuzCCA6OgAwIBAgIBAjANBgkqhkiG9w0BAQUFADBiMQs
         
         SKPaymentTransaction *transaction = download.transaction;
         NSString *transactionId = transaction.transactionIdentifier;
+        //edmar - commented it
        // NSString *transactionReceipt = [[transaction transactionReceipt] cdv_base64EncodedString];
         NSString *transactionReceipt = toBase64([transaction transactionReceipt]);
         SKPayment *payment = transaction.payment;
